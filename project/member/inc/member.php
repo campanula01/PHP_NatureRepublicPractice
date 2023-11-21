@@ -101,11 +101,21 @@ class Member{
         die('<script>self.location.href="../main.php"</script>');
     }
 
-    //회원 정보 가져오기
+    //회원 정보 가져오기 id
     public function getInfo($id){
         $sql = "SELECT * from member where id=:id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id',$id);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);  //필드명으로 된 형태만 나옴.
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    //회원정보가져오기 idx
+    public function getInfoFormIdx($idx){
+        $sql = "SELECT * from member where idx=:idx";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':idx',$idx);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);  //필드명으로 된 형태만 나옴.
         $stmt->execute();
         return $stmt->fetch();
@@ -121,7 +131,6 @@ class Member{
             ':addr1'=>$marr['addr1'],
             ':addr2'=>$marr['addr2'],
             ':photo'=>$marr['photo'],
-            ':id'=>$marr['id']
         ];
 
         if($marr['password']!=''){
@@ -133,7 +142,15 @@ class Member{
             $sql .=",password=:password";
         }
 
-        $sql .=" WHERE id=:id";
+        if($_SESSION['ses_level']==10 && isset($marr['idx']) && $marr['idx'] !=''){
+            $params[':level'] = $marr['level'];
+            $params[':idx'] = $marr['idx'];
+            $sql .=", level =:level";
+            $sql .=" WHERE idx=:idx";
+        }else{
+            $params[':id'] = $marr['id'];
+            $sql .=" WHERE id=:id";
+        }
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         //프로필 이미지를 업로드 했다면
@@ -147,14 +164,30 @@ class Member{
 
 
 
-    //회원관리
-    public function list($page, $limit){
+    //회원관리 목록
+    public function list($page, $limit, $paramArr){
         $start = ($page-1)*$limit;
+
+        $where = "";
+        if($paramArr['sn'] != '' && $paramArr['sf'] !=''){
+            switch($paramArr['sn']){
+                case 1: $sn_str = 'name'; break;
+                case 2: $sn_str = 'id'; break;
+                case 3: $sn_str = 'email'; break;
+            }
+            $where = "WHERE ".$sn_str."=:sf ";
+        }
+
         $sql = "SELECT idx, id, name, email, Date_Format(create_at,'%Y-%m-%d %H:%i') as create_at 
-        FROM member 
+        FROM member ".$where."
         order by idx desc LIMIT ".$start.",".$limit;
 
         $stmt = $this->conn->prepare($sql);
+
+        if($where !=''){
+            $stmt->bindParam(':sf', $paramArr['sf']);
+        }
+
         $stmt->setFetchMode(PDO::FETCH_ASSOC);  //필드명으로 된 형태만 나옴.
         $stmt->execute();
 
@@ -162,9 +195,25 @@ class Member{
         return $stmt->fetchAll();
     }
 
-    public function total(){
-        $sql = "SELECT COUNT(*) cnt FROM member";
+    public function total($paramArr){
+        $where = "";
+        if($paramArr['sn'] != '' && $paramArr['sf'] !=''){
+            switch($paramArr['sn']){
+                case 1: $sn_str = 'name'; break;
+                case 2: $sn_str = 'id'; break;
+                case 3: $sn_str = 'email'; break;
+            }
+            $where = "WHERE ".$sn_str."=:sf ";
+        }
+
+        $sql = "SELECT COUNT(*) cnt FROM member ".$where;
         $stmt = $this->conn->prepare($sql);
+
+        
+        if($where !=''){
+            $stmt->bindParam(':sf', $paramArr['sf']);
+        }
+
         $stmt->setFetchMode(PDO::FETCH_ASSOC);  //필드명으로 된 형태만 나옴.
         $stmt->execute();
 
@@ -172,5 +221,42 @@ class Member{
         //fetch는 하나만 가져오고 fetchAll은 여러개를 가져옴.
         return $row['cnt'];
     }
+
+    public function getAllData() {
+    $sql = "SELECT * FROM member order by idx asc";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+
+    //회원삭제
+    public function member_del($idx){
+        $sql = "DELETE FROM member WHERE idx=:idx";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':idx',$idx);
+        $stmt->execute();
+    }
+     
+   
+    //프로필 이미지 업로드
+    public function profile_upload($id, $new_photo, $old_photo=''){
+            //전 이미지 삭제
+    if($old_photo!=''){
+        unlink(PROFILE_DIR.$old_photo);   //삭제
+    }
+
+    $tmparr = explode('.', $new_photo['name']);
+    $ext = end($tmparr);
+    $photo = $id . '.' . $ext;
+    copy($new_photo['tmp_name'], PROFILE_DIR."/".$photo);
+
+    return $photo;
+
+    }
+        
+
 
 }

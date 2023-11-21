@@ -18,3 +18,8 @@ $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);    //PDO객체가 �
     //꼭 해줘야 오류가 어디서 일어났는지 알 수 있다.
     echo $e->getMessage();
 }
+
+define('DOCUMENT_ROOT',$_SERVER['DOCUMENT_ROOT'].'/project/member');
+define('ADMIN_DIR', DOCUMENT_ROOT.'/admin');
+define('DATA_DIR', DOCUMENT_ROOT.'/data');
+define('PROFILE_DIR', DATA_DIR.'/profile');

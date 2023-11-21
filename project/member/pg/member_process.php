@@ -14,6 +14,7 @@ $name = (isset($_POST['name']) && $_POST['name'] !='') ? $_POST['name'] : '' ;
 $zipcode = (isset($_POST['zipcode']) && $_POST['zipcode'] !='') ? $_POST['zipcode'] : '' ;
 $addr1 = (isset($_POST['addr1']) && $_POST['addr1'] !='') ? $_POST['addr1'] : '' ;
 $addr2 = (isset($_POST['addr2']) && $_POST['addr2'] !='') ? $_POST['addr2'] : '' ;
+$old_photo = (isset($_POST['old_photo']) && $_POST['old_photo'] !='')?$_POST['old_photo']:'';
 
 //중복체크
 if($mode=='id_chk'){
@@ -109,19 +110,10 @@ if($mode=='id_chk'){
     ";
 }else if($mode == 'edit'){
 
-    $old_photo = (isset($_POST['old_photo']) && $_POST['old_photo'] !='')?$_POST['old_photo']:'';
     if (isset($_FILES['photo']) && $_FILES['photo']['name'] != '') {
-        //전 이미지 삭제
-        if($old_photo!=''){
-            unlink("../data/profile/".$old_photo);
-        }
-
-        $tmparr = explode('.', $_FILES['photo']['name']);
-        $ext = end($tmparr);
-        $photo = $id . '.' . $ext;
-        copy($_FILES['photo']['tmp_name'], "../data/profile/" . $photo);
-
-        $old_photo = $photo;
+        $new_photo = $_FILES['photo'];
+    
+        $old_photo  = $member->profile_upload($id, $new_photo, $old_photo);
     }
 
     session_start();
