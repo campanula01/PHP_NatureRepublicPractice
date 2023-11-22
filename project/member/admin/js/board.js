@@ -133,7 +133,13 @@ document.addEventListener("DOMContentLoaded",()=>{
      })
 
 
-  
+    //해당 게시판으로 이동
+    const btn_board_view = document.querySelectorAll(".btn_board_view");
+    btn_board_view.forEach((box)=>{
+        box.addEventListener("click",()=>{
+            self.location.href='../board.php?bcode='+box.dataset.bcode
+        })
+    })
 
     //삭제 버튼 클릭
     const btn_mem_delete = document.querySelectorAll(".btn_mem_delete");

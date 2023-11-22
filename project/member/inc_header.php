@@ -114,10 +114,16 @@ if(isset($js_array)){
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
     
-              <li><a href="category.php" class="nav-link px-2 link-body-emphasis">Category</a></li>
+              <li><a href="category.php" class="nav-link px-2 link-body-emphasis <?=($menu_code=='category')?'active':'';?>">Category</a></li>
               <li><a href="best_seller.php" class="nav-link px-2 link-body-emphasis">Best Seller</a></li>
               <li><a href="new_product.php" class="nav-link px-2 link-body-emphasis">New Products</a></li>
               <li><a href="brand.php" class="nav-link px-2 link-secondary">Brand</a></li>
+              <?php 
+                foreach($boardArr AS $row){
+                  echo 
+                  '<li><a href="board.php?bcode='.$row['bcode'].'" class="nav-link px-2 link-secondary">'.$row['name'].'</a></li>';
+                }
+              ?>
             </ul>
     
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">

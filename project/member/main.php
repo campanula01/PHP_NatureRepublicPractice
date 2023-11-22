@@ -1,12 +1,12 @@
 <?php
-session_start();
-
-
-$ses_id = (isset($_SESSION['ses_id']) && $_SESSION['ses_id'] !='') ? $_SESSION['ses_id']:'';
-$ses_level = (isset($_SESSION['ses_level']) && $_SESSION['ses_level'] !='') ? $_SESSION['ses_level']:'';
+//게시판 목록
+include 'inc/dbconfig.php';
+include 'inc/board_manage.php';
+$boardm = new BoardManage($db);
+$boardArr = $boardm->list1();
 
 $js_array=['js/member_success.js'];
-
+include 'inc/common.php';
 include 'inc_header.php';
 ?>
 <main class="w-75 mx-auto border rounded-5 p-5 d-flex gap-5" style="height: calc(100vh-200px);">

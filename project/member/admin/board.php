@@ -5,7 +5,7 @@ $js_array=['js/board.js'];
 include 'inc_common.php';
 include 'inc_header.php';
 include '../inc/dbconfig.php';
-include '../inc/board.php'; 
+include '../inc/board_manage.php';  //게시판관리 class 
 include '../inc/lib.php'; //페이지 처리
 
 $sn = (isset($_GET['sn'])&& $_GET['sn'] !='' && is_numeric($_GET['sn']))? $_GET['sn']:'';
@@ -14,7 +14,7 @@ $sf = (isset($_GET['sf'])&& $_GET['sf'] !='')? $_GET['sf']:'';
 
 $paramArr = ['sn'=>$sn, 'sf'=>$sf];
 
-$board = new Board($db);
+$board = new BoardManage($db);
 $total = $board->total($paramArr);
 $limit=5;
 $page_limit=5;
@@ -57,6 +57,7 @@ $boardArr = $board->list($page, $limit, $paramArr);
             <td><?= $row['cnt']; ?></td>
             <td><?= $row['create_at']; ?></td>
             <td>
+                <button type="button" class="btn btn-success btn-sm btn_board_view " data-bcode="<?=$row['bcode']; ?>">보기</button>
                 <button type="button" class="btn btn-green1 btn-sm btn_mem_edit " data-bs-toggle="modal" data-bs-target="#board_create_modal" data-idx="<?=$row['idx']; ?>">수정</button>
                 <button type="button" class="btn btn-danger btn-sm btn_mem_delete" data-idx="<?=$row['idx']; ?>">삭제</button>
             </td>
