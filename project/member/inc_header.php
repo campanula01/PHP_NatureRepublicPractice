@@ -119,10 +119,13 @@ if(isset($js_array)){
               <li><a href="new_product.php" class="nav-link px-2 link-body-emphasis">New Products</a></li>
               <li><a href="brand.php" class="nav-link px-2 link-secondary">Brand</a></li>
               <?php 
+              if(isset($boardArr) && is_array($boardArr) && !empty($boardArr)){
                 foreach($boardArr AS $row){
                   echo 
                   '<li><a href="board.php?bcode='.$row['bcode'].'" class="nav-link px-2 link-secondary">'.$row['name'].'</a></li>';
                 }
+              }
+                
               ?>
             </ul>
     

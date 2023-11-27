@@ -20,7 +20,8 @@ $mode = (isset($_POST['mode']) && $_POST['mode'] !='')?$_POST['mode']:'';
 $bcode = (isset($_POST['bcode']) && $_POST['bcode'] !='')?$_POST['bcode']:'';
 $subject = (isset($_POST['subject']) && $_POST['subject'] !='')?$_POST['subject']:'';
 $content = (isset($_POST['content']) && $_POST['content'] !='')?$_POST['content']:'';
-
+$idx = (isset($_POST['idx']) && $_POST['idx'] !='' && is_numeric($_POST['idx']))?$_POST['idx']:'';
+$th = (isset($_POST['th']) && $_POST['th'] !='' && is_numeric($_POST['th']))?$_POST['th']:'';
 
 if($mode ==''){
     $arr=["result"=>"empty_mode"];
@@ -36,7 +37,7 @@ if($bcode ==''){
 $board = new Board($db);
 $member = new Member($db);
 
-if($mode='input'){
+if($mode=='input'){
 
     //이미지 변환하여 저장
     preg_match_all("/<img[^>]*src=[\"']?([^>\"']+)[\"']?[^>]*>/i",$content,$matches);
@@ -70,7 +71,7 @@ if($mode='input'){
         die($json_str);
     }
     if($content =='' || $content=='<p><br></p>'){
-        $arr=["result"=>"empty_content"];
+            $arr=["result"=>"empty_content"];
             $json_str = json_encode($arr);  //배열=>json문자열
             die($json_str);
     }
@@ -78,6 +79,7 @@ if($mode='input'){
     //다중 파일 첨부
 
     //파일첨부
+    $file_list_str = '';
     if(isset($_FILES['files'])){
 
         if(sizeof($_FILES['files']['name'])>4){
@@ -93,6 +95,13 @@ if($mode='input'){
             $full_str ='';
             $tmparr = explode('.', $_FILES['files']['name'][$key]);
             $ext = end($tmparr);
+            //exe파일 제어
+            $not_allowed_file_ext =['exe','xls'];
+
+            if(in_array($ext, $not_allowed_file_ext)){
+                $arr = ['result'=>'not_allowed_file'];
+                die(json_encode($arr));
+            }
             $flag = rand(1000,9999);
             $filename='a'.date('YmdHis').$flag.'.'.$ext;
             $file_ori =$_FILES['files']['name'][$key];
@@ -110,6 +119,11 @@ if($mode='input'){
     }
 
     $memArr = $member->getInfo($ses_id);
+    if($ses_id==''){
+
+    }
+
+
     $name = $memArr['name'];
 
     $arr = [
@@ -125,6 +139,53 @@ if($mode='input'){
     $board ->input($arr);
     $arr=["result"=>"success"];
     $json_str = json_encode($arr);  //배열=>json문자열
+    header('Content-Type: application/json');  // Content-Type을 JSON으로 설정
     die($json_str);
 
+}else if($mode == 'each_file_del'){
+    if($idx==''){
+        $arr=["result"=>"empty_idx"];
+        die(json_encode($arr));
+    }
+    if($th==''){
+        $arr=["result"=>"empty_th"];
+        die(json_encode($arr));
+    }
+
+    $file = $board->getAttachFile($idx, $th);
+    
+    $each_files = explode('|',$file);
+    if(file_exists(BOARD_DIR.'/'.$each_files[0])){
+        unlink(BOARD_DIR.'/'.$each_files[0]);
+
+    }
+
+    $row =$board->view($idx);
+    $files = explode('?', $row['files']);
+    $tmp_arr = [];
+    foreach($files AS $key=>$val){
+        if($key==$th){
+            continue;
+        }   //삭제된 번호만 빼고 합치기
+        $tmp_arr[] = $val;
+    }
+
+    $files = implode('?', $tmp_arr);    //새로 조합된 파일리스트 문자열
+
+    $tmp_arr=[];
+    $downs = explode('?',$row['downhit']);
+    foreach($downs AS $key=>$val){
+        if($key==$th){
+            continue;
+        }   //삭제된 번호만 빼고 합치기
+        $tmp_arr[] = $val;
+    }
+    $downs = implode('?', $tmp_arr);    //새로 조합된 다운로드수 문자열
+
+    $board->updateFileList($idx, $files, $downs);
+
+
+
+    $arr=["result"=>"success"];
+    die(json_encode($arr));
 }
