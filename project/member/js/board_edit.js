@@ -10,6 +10,13 @@ function getUrlParams(){
     return params;
 }
 
+function getExtensionOfFilename(filename){
+    const filelen = filename.length; //문자열의 길이
+    const lastdot = filename.lastIndexOf('.');
+    const ext = filename.substring(lastdot+1,filelen).toLowerCase();
+
+}
+
 
 document.addEventListener("DOMContentLoaded",()=>{
     
@@ -53,5 +60,102 @@ document.addEventListener("DOMContentLoaded",()=>{
             }
 
         })
+    })
+
+    const id_attach = document.querySelector("#id_attach")
+    if(id_attach){
+        id_attach.addEventListener("change",()=>{
+            const f = new FormData();
+            f.append("bcode",params['bcode']);//bcode
+            f.append("mode","file_attach");   //모드 파일만 첨부
+            f.append("idx",params['idx']); //게시물 번호
+            //console.log(id_attach.files)
+
+            if(id_attach.files[0].size > 40 *1024*1024){
+                alert('파일 용량이 40메가보다 큰 파일이 첨부되었습니다. 확인 바랍니다.')
+                id_attach.value=''
+                return false
+            }
+
+            ext = getExtensionOfFilename(id_attach.files[0].name);
+            if(ext=='exe'||ext=='xls'||ext=='php'||ext=='js'){
+                alert('첨부할 수 없는 포맷의 파일이 첨부되었습니다.(exe,xls,php,js,...)');
+                id_attach.value='';
+                return false;
+            }
+            f.append("files[]",id_attach.files[0]);   // 파일
+
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "./pg/board_process.php",true)
+            xhr.send(f)
+
+            xhr.onload=()=>{
+                if(xhr.status==200){
+                    const data = JSON.parse(xhr.responseText);
+                    if(data.result=='success'){
+                        self.location.reload();
+                    }else if(data.result=='empty_files'){
+                        alert('파일이 첨부되지 않았습니다.');
+                    }
+                }else if(xhr.status==404){
+                    alert('통신실패')
+                }
+            }
+
+        })
+
+    }
+
+    const btn_board_list = document.querySelector("#btn_board_list");
+    btn_board_list.addEventListener("click",()=>{
+        self.location.href='./board.php?bcode='+params['bcode'];
+    })
+
+    //수정 확인 버튼
+    const btn_edit_submit = document.querySelector("#btn_edit_submit");
+    btn_edit_submit.addEventListener("click",()=>{
+        const id_subject = document.querySelector("#id_subject");
+
+        if(id_subject.value==''){
+            alert('게시물의 제목을 입력해 주세요');
+            id_subject.focus();
+            return false;
+        }
+
+        const markupStr = $('#summernote').summernote('code');
+        if(markupStr =='<p><br></p>'){
+            alert('내용을 입력해주세요.');
+            return false;
+        }
+
+
+        const params =getUrlParams();
+
+        const f = new FormData();
+        f.append("subject",id_subject.value); //게시물 제목
+        f.append("content",markupStr);  //게시물 내용
+        f.append("bcode",params['bcode']);//bcode
+        f.append("idx",params['idx']);
+        f.append("mode","edit");   //board_process.php를 쪼개서 쓸거기 때문에 구분할 것이 필요.
+ 
+        const xhr = new XMLHttpRequest()
+        xhr.open("POST","./pg/board_process.php",true)
+        xhr.send(f);
+
+        xhr.onload=()=>{
+            if(xhr.status==200){
+                const data = JSON.parse(xhr.responseText);
+                if(data.result=='success'){
+                    alert('글 수정이 성공했습니다.');
+                    self.location.href='./board.php?bcode='+params['bcode'];
+                }else if(data.result=='permission_denied'){
+                    alert('수정권한이 없는 게시물입니다.');
+                    self.location.href='./board.php?bcode='+params['bcode'];
+                }
+            }else{
+                alert('통신실패')
+            }
+        }
     })
 })

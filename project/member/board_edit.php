@@ -50,10 +50,10 @@ include 'inc_header.php';
 <div class="mt-3">
     <?php
          //첨부파일 출력
+         $th=0;
 
             if($boardRow['files']!=''){
                 $filelist = explode('?',$boardRow['files']);
-                $th=0;
 
                 //[배열명] = array_fill([시작번호],[제품 항목수], "[값]");
                 if($boardRow['downhit']==''){
@@ -62,20 +62,22 @@ include 'inc_header.php';
                     foreach($filelist AS $file){
                     list($file_source, $file_name) = explode('|',$file);
                     echo "<a href=\"./pg/board_download.php?idx=$idx&th=$th\">$file_name</a>
-                     <button class='btn btn-sm btn-danger mb-2 btn_file_del' data-th='".$th."'>삭제</button><br>";
+                     <button class='btn btn-sm btn-danger mb-2 btn_file_del py-0' data-th='".$th."'>삭제</button><br>";
                     $th++;
                 }
             }
     ?>
 </div>
+<?php if($th < 4){ ?>
 
 <div class="mt-3">
-  <input type="file" name="attach" id="id_attach" multiple class="form-control">
+  <input type="file" name="attach" id="id_attach" class="form-control">
 
 </div>
+<?php } ?>
 
 <div class="mt-3 d-flex gap-2 justify-content-end">
-    <button class="btn btn-green1 " id="btn_write_submit">확인</button>
+    <button class="btn btn-green1 " id="btn_edit_submit">확인</button>
     <button class="btn btn-secondary" id="btn_board_list">목록</button>
 </div>
 

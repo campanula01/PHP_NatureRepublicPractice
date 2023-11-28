@@ -27,6 +27,14 @@ class Board{
             $stmt->execute();
     }
 
+    //글 수정
+    public function edit($arr){
+        $sql = "UPDATE board SET subject=:subject, content=:content WHERE idx=:idx";
+        $stmt = $this->conn->prepare($sql);
+        $params = [':subject'=> $arr['subject'], ':content'=>$arr['content'], ':idx'=>$arr['idx']];
+        $stmt->execute($params);
+    }
+
     //글 목록
     public function list($bcode,$page, $limit, $paramArr){
         $start = ($page-1)*$limit;
@@ -162,6 +170,56 @@ class Board{
         $stmt = $this->conn->prepare($sql);
         $params = [":idx"=>$idx,":files"=>$files, ":downhit"=>$downs];
         $stmt->execute($params);
+    }
+
+    //파일 첨부
+    public function file_attach($files, $file_cnt){
+        if(sizeof($files['name'])>4){
+            $arr = ["result"=>"file_upload_count_exceed"];
+            die(json_encode($arr));
+        }
+
+        $tmp_arr =[];
+
+        foreach($files['name'] AS $key =>$val){
+            $files['name'][$key];
+
+            $full_str ='';
+            $tmparr = explode('.', $files['name'][$key]);
+            $ext = end($tmparr);
+            //exe파일 제어
+            $not_allowed_file_ext =['exe','xls'];
+
+            if(in_array($ext, $not_allowed_file_ext)){
+                $arr = ['result'=>'not_allowed_file'];
+                die(json_encode($arr));
+            }
+            $flag = rand(1000,9999);
+            $filename='a'.date('YmdHis').$flag.'.'.$ext;
+            $file_ori =$files['name'][$key];
+
+            //copy() move_uploaded_file()
+            copy($files['tmp_name'][$key], BOARD_DIR.'/'.$filename);
+
+            //파일명으로 할 수 없는 걸고 |
+            $full_str = $filename.'|'.$file_ori;
+            $tmp_arr[] = $full_str;
+
+        }
+        return implode('?',$tmp_arr);
+        
+    }
+
+    public function extract_image($content){
+            //이미지 변환하여 저장
+    preg_match_all("/<img[^>]*src=[\"']?([^>\"']+)[\"']?[^>]*>/i",$content,$matches);
+
+    $img_array=[];
+    foreach($matches[1] AS $key =>$row){
+        $img_array[]=$row;
+
+        }   //이미 업로드된 이미지는 처리하지 않는다.
+        return $img_array;
     }
 
 }

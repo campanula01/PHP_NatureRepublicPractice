@@ -82,40 +82,8 @@ if($mode=='input'){
     $file_list_str = '';
     if(isset($_FILES['files'])){
 
-        if(sizeof($_FILES['files']['name'])>4){
-            $arr = ["result"=>"file_upload_count_exceed"];
-            die(json_encode($arr));
-        }
+        $file_list_str = $board->file_attach($_FILES,$file_cnt);
 
-        $tmp_arr =[];
-
-        foreach($_FILES['files']['name'] AS $key =>$val){
-            $_FILES['files']['name'][$key];
-
-            $full_str ='';
-            $tmparr = explode('.', $_FILES['files']['name'][$key]);
-            $ext = end($tmparr);
-            //exe파일 제어
-            $not_allowed_file_ext =['exe','xls'];
-
-            if(in_array($ext, $not_allowed_file_ext)){
-                $arr = ['result'=>'not_allowed_file'];
-                die(json_encode($arr));
-            }
-            $flag = rand(1000,9999);
-            $filename='a'.date('YmdHis').$flag.'.'.$ext;
-            $file_ori =$_FILES['files']['name'][$key];
-
-            //copy() move_uploaded_file()
-            copy($_FILES['files']['tmp_name'][$key], BOARD_DIR.'/'.$filename);
-
-            //파일명으로 할 수 없는 걸고 |
-            $full_str = $filename.'|'.$file_ori;
-            $tmp_arr[] = $full_str;
-
-        }
-        $file_list_str = implode('?',$tmp_arr);
-        
     }
 
     $memArr = $member->getInfo($ses_id);
@@ -188,4 +156,95 @@ if($mode=='input'){
 
     $arr=["result"=>"success"];
     die(json_encode($arr));
+}
+else if($mode == 'file_attach'){
+    //수정에서 개별파일 첨부하기
+    $file_list_str = '';
+    if(isset($_FILES['files'])){
+        $file_cnt = 1;
+        $file_list_str = $board->file_attach($_FILES['files'],$file_cnt);
+
+    }else{
+        $arr=["result"=>"empty_files"];
+        die(json_encode($arr));
+    }
+
+    $row =$board->view($idx);
+    if($row['files']!=''){
+        $files = $row['files'].'?'.$file_list_str;
+    }else{
+
+        $files =$file_list_str;
+    }
+
+    if($row['downhit']!=''){
+        $downs = $row['downhit'].'?0';
+    }else{
+        $downs ='';
+    }
+
+    $board->updateFileList($idx, $files, $downs);
+
+    $arr=["result"=>"success"];
+    die(json_encode($arr));
+}else if($mode=='edit'){
+
+    $row=$board->view($idx);
+    if($row['id']!=$ses_id){
+        die(json_encode(["result"=>"permission_denied"]));
+    }
+
+    $old_img_arr = $board->extract_image($row['content']);
+
+
+    //이미지 변환하여 저장
+    preg_match_all("/<img[^>]*src=[\"']?([^>\"']+)[\"']?[^>]*>/i",$content,$matches);
+
+    $current_img_arr=[];
+    foreach($matches[1] AS $key =>$row){
+        if(substr($row,0,5) != 'data:'){
+            $current_img_arr[] = $row;
+            continue;
+        }   //이미 업로드된 이미지는 처리하지 않는다.
+
+        list($type, $data) = explode(';',$row);
+        list(,$data) = explode(',',$data);
+        $data = base64_decode($data);
+        list(,$ext) = explode('/',$type);
+        $ext = ($ext == 'jpeg')?'jpg':$ext;
+
+        $filename = date('YmdHis').'_'.$key.'.'.$ext;
+
+        file_put_contents(BOARD_DIR."/".$filename, $data);  //파일 업로드 수행
+
+        $content =str_replace($row, BOARD_WEB_DIR."/".$filename,$content);//base64 인코딩된 이미지가 서버 업로드 이름으로 변경
+
+        
+    }
+
+    $diff_img_arr = array_diff($old_img_arr,$current_img_arr);
+    foreach($diff_img_arr AS $value){
+        unlink("../".$value);
+    }
+
+    
+    if($subject ==''){
+    $arr=["result"=>"empty_subject"];
+        $json_str = json_encode($arr);  //배열=>json문자열
+        die($json_str);
+    }
+    if($content =='' || $content=='<p><br></p>'){
+            $arr=["result"=>"empty_content"];
+            $json_str = json_encode($arr);  //배열=>json문자열
+            die($json_str);
+    }
+    $arr = [
+        'idx'=>$idx,
+        'subject'=>$subject,
+        'content'=>$content
+    ];
+
+    $board ->edit($arr);
+    die(json_encode(["result"=>"success"]));
+
 }

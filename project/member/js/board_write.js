@@ -70,9 +70,9 @@ document.addEventListener("DOMContentLoaded",()=>{
                 return false
             }
 
-            ext = getExtensionOfFilename(file.name);
-            if(ext=='exe'||ext=='xls'){
-                alert('첨부할 수 없는 포맷의 파일이 첨부되었습니다.(exe,xls,...)');
+            ext = getExtensionOfFilename(id_attach.files[0].name);
+            if(ext=='exe'||ext=='xls'||ext=='php'||ext=='js'){
+                alert('첨부할 수 없는 포맷의 파일이 첨부되었습니다.(exe,xls,php,js,...)');
                 id_attach.value='';
                 return false;
             }
