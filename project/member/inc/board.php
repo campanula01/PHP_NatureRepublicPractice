@@ -60,7 +60,7 @@ class Board{
             }
         }
 
-        $sql = "SELECT idx, id, subject, name,hit, Date_Format(create_at,'%Y-%m-%d %H:%i') as create_at 
+        $sql = "SELECT idx, id, subject, name,hit,comment_cnt, Date_Format(create_at,'%Y-%m-%d %H:%i') as create_at 
         FROM board ".$where."
         order by idx desc LIMIT ".$start.",".$limit;
 
@@ -174,7 +174,7 @@ class Board{
 
     //파일 첨부
     public function file_attach($files, $file_cnt){
-        if(sizeof($files['name'])>4){
+        if(sizeof($files['name'])>$file_cnt){
             $arr = ["result"=>"file_upload_count_exceed"];
             die(json_encode($arr));
         }
@@ -220,6 +220,13 @@ class Board{
 
         }   //이미 업로드된 이미지는 처리하지 않는다.
         return $img_array;
+    }
+
+    public function delete($idx){
+        $sql = "DELETE FROM board WHERE idx=:idx";
+        $stmt = $this->conn->prepare($sql);
+        $params = [":idx"=>$idx];
+        $stmt->execute($params);
     }
 
 }

@@ -146,6 +146,7 @@ if(isset($js_array)){
     
               <li><a href="member.php" class="nav-link px-2 link-body-emphasis">회원 관리</a></li>
               <li><a href="board.php" class="nav-link px-2 link-body-emphasis">게시판 관리</a></li>
+              <li><a href="popup.php" class="nav-link px-2 link-body-emphasis">팝업 관리</a></li>
             </ul>
     
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">

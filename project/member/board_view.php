@@ -2,6 +2,7 @@
 include 'inc/common.php';
 include 'inc/dbconfig.php';
 include 'inc/board.php';
+include 'inc/comment.php';
 include 'inc/lib.php';//페이지네이션
 
 
@@ -32,6 +33,14 @@ $g_title = $board_name;
 $boardRow = $board->hitInc($idx);
 $boardRow = $board->view($idx);
 
+if($boardRow == null){
+    die("<script>alert('존재하지 않는 게시물입니다.');history.go(-1);</script>");
+}
+
+//댓글 목록
+$comment = new Comment($db);
+
+$commentRs = $comment->list($idx);
 //다운로드 횟수 배열
 $downhit_arr = explode('?', $boardRow['downhit']);
 
@@ -73,7 +82,7 @@ include 'inc_header.php';
                 }
             ?>
         </div>
-        <div class="d-flex gap-2 p-d">
+        <div class="d-flex gap-2 p-3">
             <button class="btn btn-secondary me-auto" id="btn_list">목록</button>
 
             <?php if($boardRow['id']==$ses_id){?>
@@ -81,8 +90,47 @@ include 'inc_header.php';
             <button class="btn btn-danger" id="btn_delete">삭제</button>
             <?php } ?>
         </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <textarea name="" rows="3" class="form-control" id="comment_content"></textarea>
+            <button class="btn btn-secondary" id="btn_comment" data-comment-idx="0">등록</button>
+        </div>  
         
+        <div class="mt-3">
+            <table class="table ">
+                <colgroup>
+                    <col width="50%"  />
+                    <col width="10%"  />
+                    <col width="10%"  />
+                </colgroup>
+                <?php 
+                    foreach($commentRs AS $comRow){
+                ?>
+                <tr>
+                    <td>
+                        <span><?php echo nl2br($comRow['content']); ?></span>
+
+                        <?php
+                        if($comRow['id']==$ses_id){
+                            echo '
+                            <button class="btn btn-info btn-sm p-0 ms-2 btn_comment_edit" data-comment-idx="'.$comRow['idx'].'">수정</button>
+                            <button class="btn btn-danger btn-sm p-0 ms-2 btn_comment_delete" data-comment-idx="'.$comRow['idx'].'">삭제</button>
+                            ';
+                        }
+                        ?>
+                    </td>
+                    <td>
+                        <?php echo $comRow['id']; ?>
+                    </td>
+                    <td>
+                        <?php echo $comRow['create_at']; ?>
+                    </td>
+                </tr>
+                <?php } ?>
+            </table>
+        </div>
     </div>
+
 </main>
 
 

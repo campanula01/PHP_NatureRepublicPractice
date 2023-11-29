@@ -80,9 +80,10 @@ if($mode=='input'){
 
     //파일첨부
     $file_list_str = '';
+    $file_cnt=4;
     if(isset($_FILES['files'])){
 
-        $file_list_str = $board->file_attach($_FILES,$file_cnt);
+        $file_list_str = $board->file_attach($_FILES['files'],$file_cnt);
 
     }
 
@@ -247,4 +248,26 @@ else if($mode == 'file_attach'){
     $board ->edit($arr);
     die(json_encode(["result"=>"success"]));
 
+}else if($mode=='delete'){
+    $row = $board->view($idx);
+    //본문 이미지 삭제
+    $img_arr =$board->extract_image($row['content']);
+    foreach($img_arr AS $value){
+        unlink("../".$value);
+    }
+
+    //첨부파일 삭제
+    if($row['files']!=''){
+    $filelist = explode('?', $row['files']);
+        foreach($filelist AS $value){
+            list($file_src, ) = explode('|',$value);
+            if(file_exists("../".$value)){
+                unlink(BOARD_DIR.'/'.$file_src);
+            }
+        }
+    }
+
+    $board->delete($idx);
+
+    die(json_encode(["result"=>"success"]));
 }

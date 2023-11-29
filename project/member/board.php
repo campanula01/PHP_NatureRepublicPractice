@@ -64,11 +64,16 @@ include 'inc_header.php';
     $ntotal = $total-($page-1)*$limit;
     foreach ($boardRs as $boardrow): 
     $number =$ntotal-$cnt;
+
     $cnt++;
+
+    
     ?>
     <tr class="tr" data-idx="<?=$boardrow['idx']; ?>">
         <td><?= $number ?></td>
-        <td><?= $boardrow['subject'] ?></></td>
+        <td><?php echo $boardrow['subject']; if($boardrow['comment_cnt']>0){
+            echo ' <span class="badge bg-secondary">'.$boardrow['comment_cnt'].'</span>';
+        }  ?></td>
         <td><?= $boardrow['name'] ?></td>
         <td><?= $boardrow['create_at'] ?></td>
         <td><?= $boardrow['hit'] ?></td>
