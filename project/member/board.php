@@ -39,11 +39,65 @@ include 'inc_header.php';
 <style>
     .tr{cursor: pointer;}
 </style>
+<style>
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product-item {
+            width: calc(20% - 20px); /* 4개씩 나열하므로 100% / 4 - 간격 크기 */
+            margin-bottom: 20px;
+        }
+
+        .product-item img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
 <main class="w-100 mx-auto border rounded-2 p-5" style="height: calc(100vh-200px);">
 
 <h3 class="text-center"><?=$board_name ?></h3>
+<?php 
 
-<table class="table striped mt-5 table-hover">
+if($bcode =='etyhdd'){?>
+
+    <div class="product-list">
+    <?php
+    $limit =10;
+    $cnt = 0;
+    $ntotal = $total-($page-1)*$limit;
+    $number =$ntotal-$cnt;
+
+
+    
+    // 제품을 순회하며 표시
+    foreach ($boardRs as $boardrow) {
+        ?>
+        <div class="product-item">
+        <?php
+            $cnt++;
+            $fileParts = explode('|', $boardrow['files']);
+            $imageName = $fileParts[0];
+                 $imagePath = './data/board/' . $imageName;
+                 if (file_exists($imagePath)) {
+                     ?>
+                     <img src="<?= $imagePath; ?>" alt="<?= $boardrow['name']; ?>" style="max-width: 300px; max-height: 300px;" class="tr" data-idx="<?=$boardrow['idx']; ?>">
+                     <?php
+                 } else {
+                     echo "Image not found";
+                 }
+                 ?>
+        </div>
+        <?php
+    }
+    ?>
+    </div>
+
+<?php }else{ ?>
+
+    <table class="table striped mt-5 table-hover">
     <colgroup>
         <col width="10%">
         <col width="45%">
@@ -73,7 +127,9 @@ include 'inc_header.php';
         <td><?= $number ?></td>
         <td><?php echo $boardrow['subject']; if($boardrow['comment_cnt']>0){
             echo ' <span class="badge bg-secondary">'.$boardrow['comment_cnt'].'</span>';
-        }  ?></td>
+        }  ?>
+        
+    </td>
         <td><?= $boardrow['name'] ?></td>
         <td><?= $boardrow['create_at'] ?></td>
         <td><?= $boardrow['hit'] ?></td>
@@ -81,6 +137,8 @@ include 'inc_header.php';
 <?php endforeach; ?>
 
 </table>
+
+    <?php }?>
 <div class="container mt-3 w-50 d-flex gap-2">
     <select name="" id="sn" class="form-select w-25">
         <option value="1" <?php if($sn==1) echo ' selected'; ?>>제목, 내용</option>

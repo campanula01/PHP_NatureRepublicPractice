@@ -7,8 +7,8 @@ include 'inc_header.php';
 ?>
 <main class="mx-auto border rounded-5 p-5 d-flex gap-5" style="height: calc(100vh-200px);">
     <form method="post" class="w-25 mt-5 m-auto" action="">
-        <img src="./images/logo.png" width="200" alt="">
-        <h3 class="h3 mb-3">로그인</h3>
+        <img src="./images/logo.png" width="100" alt="">
+        <h3 class="h3 mb-3 mt-3">로그인</h3>
         <div class="form-floating mt-2">
             <input type="text" class="form-control" id="f_id" placeholder="ID" autocomplete="off">
             <label for="f_id">아이디</label>

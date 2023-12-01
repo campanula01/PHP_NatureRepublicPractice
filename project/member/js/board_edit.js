@@ -13,7 +13,79 @@ function getUrlParams(){
 function getExtensionOfFilename(filename){
     const filelen = filename.length; //문자열의 길이
     const lastdot = filename.lastIndexOf('.');
-    const ext = filename.substring(lastdot+1,filelen).toLowerCase();
+    return filename.substring(lastdot+1,filelen).toLowerCase();
+
+}
+
+function updateLiElement(data){
+    const el = document.getElementById('id_filelist');
+    el.innerHTML="";
+    for(i=0;i<data.file_list.length;i++){
+        const li = document.createElement("li")     //<li></li>
+        const span = document.createElement("span");    //<SPAN></span>
+        span.innerHTML = data.file_list[i]; //<span>8888.png<span>
+        li.appendChild(span) //<li><span>8888.png</span></li>
+
+        const button = document.createElement("button");
+        button.innerHTML ='삭제'    //<button>삭제</button>
+        button.classList.add('btn', 'btn-sm', 'btn-danger', 'mb-2', 'btn_file_del', 'py-0', 'mx-2')  //btn btn-sm btn-danger mb-2 btn_file_del py-0
+        button.setAttribute('data-th',i);
+
+        li.appendChild(button);
+        el.appendChild(li);
+
+        
+    }
+    const btn_file_dels =document.querySelectorAll(".btn_file_del")
+        btn_file_dels.forEach((box)=>{
+            box.addEventListener("click",()=>{
+                fileDeleteFunction(box.dataset.th)
+            })
+        })
+
+        if(btn_file_dels.length > 3){
+            document.getElementById('div_attach').style.display='none';
+        }else {
+            document.getElementById('div_attach').style.display='block';
+        }
+}
+
+function fileDeleteFunction(th){
+    if(!confirm('해당 첨부파일을 삭제하시겠습니까?')){
+        return false;
+    }
+    const params = getUrlParams();
+
+    const f = new FormData();
+
+    f.append("th",th); //게시물 제목
+    f.append("bcode",params['bcode']);//bcode
+    f.append("idx",params['idx']);  //게시물 번호
+    f.append("mode","each_file_del");   // 개별 파일 삭제
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST","pg/board_process.php",true);
+    xhr.send(f);
+
+    xhr.onload=()=>{
+        if(xhr.status==200){
+            const data = JSON.parse(xhr.responseText);
+            if(data.result=='empty_idx'){
+                alert("게시물 번호가 빠졌습니다.")
+                return false;
+            }                
+            if(data.result=='empty_th'){
+                alert("몇번째 첨부파일인지 알 수가 없습니다.")
+                return false;
+            }      
+            else if(data.result=='success'){
+                //self.location.reload();
+                updateLiElement(data);
+            }             
+        }else if(xhr.status==404){
+            alert("파일이 존재하지 않습니다.")
+        }
+    }
 
 }
 
@@ -25,39 +97,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     const btn_file_dels = document.querySelectorAll(".btn_file_del");
     btn_file_dels.forEach((box)=>{
         box.addEventListener("click",()=>{
+            fileDeleteFunction(box.dataset.th)
 
-            if(!confirm('해당 첨부파일을 삭제하시겠습니까?')){
-                return false;
-            }
-
-            const f = new FormData();
-            f.append("th",box.dataset.th); //게시물 제목
-            f.append("bcode",params['bcode']);//bcode
-            f.append("idx",params['idx']);  //게시물 번호
-            f.append("mode","each_file_del");   // 개별 파일 삭제
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST","pg/board_process.php",true);
-            xhr.send(f);
-
-            xhr.onload=()=>{
-                if(xhr.status==200){
-                    const data = JSON.parse(xhr.responseText);
-                    if(data.result=='empty_idx'){
-                        alert("게시물 번호가 빠졌습니다.")
-                        return false;
-                    }                
-                    if(data.result=='empty_th'){
-                        alert("몇번째 첨부파일인지 알 수가 없습니다.")
-                        return false;
-                    }      
-                    else if(data.result=='success'){
-                        self.location.reload();
-                    }             
-                }else if(xhr.status==404){
-                    alert("파일이 존재하지 않습니다.")
-                }
-            }
 
         })
     })
@@ -94,7 +135,9 @@ document.addEventListener("DOMContentLoaded",()=>{
                 if(xhr.status==200){
                     const data = JSON.parse(xhr.responseText);
                     if(data.result=='success'){
-                        self.location.reload();
+                        //self.location.reload();
+                        updateLiElement(data);
+                        document.getElementById('id_attach').value = '';
                     }else if(data.result=='empty_files'){
                         alert('파일이 첨부되지 않았습니다.');
                     }

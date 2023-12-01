@@ -55,7 +55,7 @@ $memArr = $member->list($page, $limit, $paramArr);
             <td><?= $row['email']; ?></td>
             <td><?= $row['create_at']; ?></td>
             <td>
-                <button type="button" class="btn btn-green1 btn-sm btn_mem_edit" data-idx="<?=$row['idx']; ?>">수정</button>
+                <button type="button" class="btn btn-green3 btn-sm btn_mem_edit" data-idx="<?=$row['idx']; ?>">수정</button>
                 <button type="button" class="btn btn-danger btn-sm btn_mem_delete" data-idx="<?=$row['idx']; ?>">삭제</button>
             </td>
 
@@ -75,7 +75,7 @@ $memArr = $member->list($page, $limit, $paramArr);
 
         <input type="text" class="form-control w-50" id="sf" name="sf">
         <button class="btn btn-green1" id="btn_search">검색</button>
-        <button class="btn btn-primary" id="btn_all">전체목록</button>
+        <button class="btn btn-green3" id="btn_all">전체목록</button>
 
 
     </div>
@@ -89,7 +89,7 @@ $memArr = $member->list($page, $limit, $paramArr);
         echo $pagenation;
     ?>
 
-            <button type="button" class="btn btn-green1" id="btn_excel">엑셀로 저장</button>
+            <button type="button" class="btn btn-success" id="btn_excel">엑셀로 저장</button>
     </div>
 
 </main>

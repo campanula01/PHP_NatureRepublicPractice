@@ -62,7 +62,7 @@ $popupArr =$popup->list();
 
         <input type="text" class="form-control w-50" id="sf" name="sf">
         <button class="btn btn-green1" id="btn_search">검색</button>
-        <button class="btn btn-primary" id="btn_all">전체목록</button>
+        <button class="btn btn-green3" id="btn_all">전체목록</button>
 
 
     </div>
@@ -71,7 +71,7 @@ $popupArr =$popup->list();
     <div class="d-flex mt-3 justify-content-between align-items-start">
 
 
-            <button type="button" class="btn btn-primary" id="btn_create_modal" data-bs-toggle="modal" data-bs-target="#popup_create_modal">팝업 생성</button>
+            <button type="button" class="btn btn-success" id="btn_create_modal" data-bs-toggle="modal" data-bs-target="#popup_create_modal">팝업 생성</button>
     </div>
 
 </main>

@@ -60,7 +60,7 @@ class Board{
             }
         }
 
-        $sql = "SELECT idx, id, subject, name,hit,comment_cnt, Date_Format(create_at,'%Y-%m-%d %H:%i') as create_at 
+        $sql = "SELECT idx, id, subject, name,hit,comment_cnt, Date_Format(create_at,'%Y-%m-%d %H:%i') as create_at , files
         FROM board ".$where."
         order by idx desc LIMIT ".$start.",".$limit;
 

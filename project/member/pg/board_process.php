@@ -153,9 +153,7 @@ if($mode=='input'){
 
     $board->updateFileList($idx, $files, $downs);
 
-
-
-    $arr=["result"=>"success"];
+    $arr=["result"=>"success", "file_list"=>get_file_array($idx)];
     die(json_encode($arr));
 }
 else if($mode == 'file_attach'){
@@ -186,7 +184,8 @@ else if($mode == 'file_attach'){
 
     $board->updateFileList($idx, $files, $downs);
 
-    $arr=["result"=>"success"];
+
+    $arr=["result"=>"success","file_list"=>get_file_array($idx)];
     die(json_encode($arr));
 }else if($mode=='edit'){
 
@@ -270,4 +269,22 @@ else if($mode == 'file_attach'){
     $board->delete($idx);
 
     die(json_encode(["result"=>"success"]));
+}
+
+function get_file_array($idx){
+    global $board;
+    $boardRow = $board ->view($idx);
+
+    if($boardRow['files']==''){
+        return [];
+    }
+
+    $filelist = explode('?', $boardRow['files']);
+    $rs_arr = [];
+    foreach($filelist as $file){
+        ///실제 팡리명|업로드 이름
+        list(, $file_name) = explode('|', $file);
+        $rs_arr[] = $file_name;
+    }
+    return $rs_arr;
 }

@@ -1,7 +1,7 @@
 <?php
 
 //게시판 클래스
-class Popup{
+class Slide{
     //db연결 객제를 가져와야함. 멤버변수
     private $conn;
 
@@ -13,11 +13,10 @@ class Popup{
 
     //입력
     public function input($arr){
-        $sql = "INSERT INTO popups(name, sdate, edate, pop_x, pop_y, file, link, cookie, `use`, create_at)
-         VALUES(:name, :sdate, :edate, :pop_x, :pop_y, :file, :link, :cookie, :use, NOW())";
+        $sql = "INSERT INTO slide(name, file, create_at)
+         VALUES(:name, :file, NOW())";
          $stmt = $this->conn->prepare($sql);
-         $params =[':name'=>$arr['name'], ':sdate'=>$arr['sdate'],':edate'=>$arr['edate'],':pop_x'=>$arr['pop_x'],':pop_y'=>$arr['pop_y']
-         ,':file'=>$arr['file'],':link'=>$arr['link'],':cookie'=>$arr['cookie'],':use'=>$arr['use']];
+         $params =[':name'=>$arr['name'],':file'=>$arr['file']];
 
          $stmt->execute($params);
     }
@@ -42,7 +41,7 @@ class Popup{
     }
 
     public function delete($idx){
-        $sql ="DELETE FROM popups WHERE idx=:idx";
+        $sql ="DELETE FROM slide WHERE idx=:idx";
         $stmt = $this->conn->prepare($sql);
         $params = [':idx'=>$idx];
         $stmt->execute($params); 
@@ -51,7 +50,7 @@ class Popup{
     //가져오기
     public function get_info($idx){
         try {
-            $sql = "SELECT * FROM popups WHERE idx=:idx";
+            $sql = "SELECT * FROM slide WHERE idx=:idx";
             $stmt = $this->conn->prepare($sql);
             $params = [':idx'=>$idx];
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -66,7 +65,7 @@ class Popup{
 
     //목록
     public function list(){
-        $sql = "SELECT * FROM popups";
+        $sql = "SELECT * FROM slide";
         $stmt = $this->conn->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         $stmt->execute();
@@ -74,16 +73,17 @@ class Popup{
 
     }
 
-    //유효한 팝업 목록
+
+    //유효한 슬라이드 목록
     public function valid_list(){
-        $sql = "SELECT * FROM popups WHERE `use`=1 AND sdate <= DATE_FORMAT(NOW(), '%Y-%m-%d') AND edate >= DATE_FORMAT(NOW(), '%Y-%m-%d')";
+        $sql = "SELECT * FROM slide ORDER BY idx DESC
+        LIMIT 3";
         $stmt = $this->conn->prepare($sql);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         $stmt->execute();
         return $stmt->fetchAll();
 
     }
-
     //파일삭제 
     public function file_unlink($file){
         if(file_exists(POPUP_DIR.'/'.$file)){
@@ -112,7 +112,7 @@ class Popup{
             $file_ori =$file['name'];
 
             //copy() move_uploaded_file()
-            copy($file['tmp_name'], POPUP_DIR.'/'.$filename);
+            copy($file['tmp_name'], SLIDE_DIR.'/'.$filename);
 
             //파일명으로 할 수 없는 걸고 |
             return $filename.'|'.$file_ori;

@@ -48,6 +48,7 @@ include 'inc_header.php';
 <div id="summernote"></div>
 
 <div class="mt-3">
+    <ul id="id_filelist">
     <?php
          //첨부파일 출력
          $th=0;
@@ -61,20 +62,22 @@ include 'inc_header.php';
                 }
                     foreach($filelist AS $file){
                     list($file_source, $file_name) = explode('|',$file);
-                    echo "<a href=\"./pg/board_download.php?idx=$idx&th=$th\">$file_name</a>
-                     <button class='btn btn-sm btn-danger mb-2 btn_file_del py-0' data-th='".$th."'>삭제</button><br>";
+                    echo "<li>
+                    <span>$file_name</span>
+                     <button class='btn btn-sm btn-danger mb-2 btn_file_del py-0' data-th='".$th."'>삭제</button></li>";
                     $th++;
                 }
             }
     ?>
+    </ul>
 </div>
-<?php if($th < 4){ ?>
 
-<div class="mt-3">
+
+<div class="mt-3" id="div_attach" style="display:<?=($th > 3) ? 'none':'block'; ?>">
   <input type="file" name="attach" id="id_attach" class="form-control">
 
 </div>
-<?php } ?>
+
 
 <div class="mt-3 d-flex gap-2 justify-content-end">
     <button class="btn btn-green1 " id="btn_edit_submit">확인</button>

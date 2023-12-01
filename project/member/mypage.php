@@ -1,10 +1,12 @@
 <?php
-/**die() 함수는 PHP에서 현재 스크립트의 실행을 즉시 종료하는 데 사용됩니다.
- *  die() 함수가 호출되면 스크립트는 즉시 실행을 멈추고, 
- * 선택적으로 종료하기 전에 메시지를 출력할 수 있습니다(인수로 문자열이 전달된 경우).
-*/
-session_start();
 
+
+
+
+
+include 'inc/dbconfig.php';
+include 'inc/member.php';
+include 'inc/common.php';
 
 $ses_id = (isset($_SESSION['ses_id']) && $_SESSION['ses_id'] !='') ? $_SESSION['ses_id']:'';
 
@@ -18,8 +20,6 @@ if($ses_id==''){
     exit;
 }
 
-include 'inc/dbconfig.php';
-include 'inc/member.php';
 $member = new Member($db);
 
 $memArr = $member->getInfo($ses_id);

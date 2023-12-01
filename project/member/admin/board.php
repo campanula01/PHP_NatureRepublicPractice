@@ -78,7 +78,7 @@ $boardArr = $board->list($page, $limit, $paramArr);
 
         <input type="text" class="form-control w-50" id="sf" name="sf">
         <button class="btn btn-green1" id="btn_search">검색</button>
-        <button class="btn btn-primary" id="btn_all">전체목록</button>
+        <button class="btn btn-green3" id="btn_all">전체목록</button>
 
 
     </div>
@@ -92,7 +92,7 @@ $boardArr = $board->list($page, $limit, $paramArr);
         echo $pagenation;
     ?>
 
-            <button type="button" class="btn btn-primary" id="btn_create_modal" data-bs-toggle="modal" data-bs-target="#board_create_modal">게시판 생성</button>
+            <button type="button" class="btn btn-success" id="btn_create_modal" data-bs-toggle="modal" data-bs-target="#board_create_modal">게시판 생성</button>
     </div>
 
 </main>
